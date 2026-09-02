@@ -153,6 +153,10 @@ export function Footer() {
             </div>
             <span>•</span>
             <span>All Rights Reserved © {new Date().getFullYear()} ARTISTRYGIGS</span>
+            <span>•</span>
+            <Link href="/admin" className="text-neutral-500 hover:text-amber-400 transition-colors flex items-center gap-1">
+              <span>Atelier Admin</span>
+            </Link>
           </div>
 
           <div className="flex items-center gap-4">
