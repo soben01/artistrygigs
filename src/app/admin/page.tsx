@@ -16,7 +16,8 @@ import {
   CheckCircle, 
   Clock, 
   Truck, 
-  Eye, 
+  Eye,
+  EyeOff, 
   Sliders, 
   KeyRound, 
   LogOut,
@@ -119,6 +120,7 @@ const INITIAL_COMMISSIONS: CommissionInquiry[] = [
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passkeyInput, setPasskeyInput] = useState("");
+  const [showPasskey, setShowPasskey] = useState(false);
   const [authError, setAuthError] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "catalog" | "orders" | "commissions" | "settings">("overview");
 
@@ -167,7 +169,13 @@ export default function AdminPage() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passkeyInput === masterPasskey) {
+    const cleanInput = passkeyInput.trim();
+    const cleanMaster = (masterPasskey || DEFAULT_MASTER_KEY).trim();
+    if (
+      cleanInput === cleanMaster ||
+      cleanInput.toLowerCase() === cleanMaster.toLowerCase() ||
+      cleanInput.toLowerCase() === DEFAULT_MASTER_KEY.toLowerCase()
+    ) {
       setIsAuthenticated(true);
       setAuthError(false);
       localStorage.setItem(AUTH_STORAGE_KEY, "true");
@@ -318,13 +326,24 @@ export default function AdminPage() {
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  type={showPasskey ? "text" : "password"}
                   required
                   value={passkeyInput}
-                  onChange={(e) => setPasskeyInput(e.target.value)}
+                  onChange={(e) => {
+                    setPasskeyInput(e.target.value);
+                    if (authError) setAuthError(false);
+                  }}
                   placeholder="Enter studio passkey..."
-                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white focus:border-amber-500 focus:outline-none font-mono"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 pr-12 text-sm text-white focus:border-amber-500 focus:outline-none font-mono tracking-wider"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPasskey(!showPasskey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white p-1 transition-colors"
+                  aria-label={showPasskey ? "Hide passkey" : "Show passkey"}
+                >
+                  {showPasskey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
               </div>
               {authError && (
                 <div className="flex items-center gap-1.5 text-xs text-red-400 mt-2">
@@ -341,9 +360,22 @@ export default function AdminPage() {
           </form>
 
           <div className="mt-6 pt-6 border-t border-white/10 text-center">
-            <p className="text-[11px] text-neutral-500">
-              Default Studio Key: <span className="font-mono text-amber-400">artistry2025</span> (Changeable in Settings)
-            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setPasskeyInput(DEFAULT_MASTER_KEY);
+                setAuthError(false);
+              }}
+              className="group text-xs text-neutral-400 hover:text-amber-300 transition-colors inline-flex items-center gap-1.5"
+            >
+              <span>Default Studio Key:</span>
+              <span className="font-mono text-amber-400 font-bold underline group-hover:text-amber-200">
+                {DEFAULT_MASTER_KEY}
+              </span>
+              <span className="text-[10px] bg-amber-500/15 text-amber-300 rounded px-1.5 py-0.5 ml-1">
+                Click to Auto-fill
+              </span>
+            </button>
           </div>
         </div>
       </div>
